@@ -1,0 +1,5 @@
+{
+  "name": "genetic-algorithm-sudoku",
+  "version": "1.0",
+  "dependencies": [ "sfml" ]
+}

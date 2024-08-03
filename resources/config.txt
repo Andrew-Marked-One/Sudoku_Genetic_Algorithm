@@ -1,0 +1,2 @@
+Window 1024 576 60  //Width, height, framerate. Parameters of the window. | (int, int, int)
+Assets resources/assets.txt //File path. File that specifies fonts and images. | (string)
