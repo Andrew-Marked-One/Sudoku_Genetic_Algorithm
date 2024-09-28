@@ -5,13 +5,16 @@
 GameEngine::GameEngine(const std::string& configPath)
 	: m_configPath{ configPath } {
 
+	INPUT_VALIDITY(!configPath.empty());
+
 	init();
 }
 
 void GameEngine::init() {
 	loadFromConfig();
 	ImGui::SFML::Init(m_window);
-	changeScene("ALGORITHM", std::make_unique<Scene_Algorithm>(this), true);
+	ImPlot::CreateContext();
+	changeScene(SceneType::Algorithm, std::make_unique<Scene_Algorithm>(this), true);
 }
 
 void GameEngine::loadFromConfig() {
@@ -41,14 +44,17 @@ void GameEngine::loadFromConfig() {
 	}
 }
 
-void GameEngine::changeScene(const std::string& sceneName, std::unique_ptr<Scene>&& scene, bool endCurScene) {
-	if (scene) {
-		m_sceneMap[sceneName] = std::move(scene);
-	}
+void GameEngine::changeScene(SceneType sceneType, std::unique_ptr<Scene>&& scene, bool endCurScene) noexcept {
+	INPUT_VALIDITY(sceneType != SceneType::None);
+	INPUT_VALIDITY(scene);
+	INPUT_VALIDITY(endCurScene && sceneType != m_currentSceneType || !endCurScene);
+
+	m_sceneMap[sceneType] = std::move(scene);
+
 	if (endCurScene) {
-		m_sceneMap.erase(m_curSceneName);
+		m_sceneMap.erase(m_currentSceneType);
 	}
-	m_curSceneName = sceneName;
+	m_currentSceneType = sceneType;
 }
 
 void GameEngine::run() {
@@ -61,7 +67,6 @@ void GameEngine::run() {
 			currentScene()->update();
 			ImGui::SFML::Update(m_window, deltaClock.restart());
 
-
 			m_window.clear(sf::Color(255, 255, 255));
 
 			currentScene()->sRender();
@@ -70,23 +75,23 @@ void GameEngine::run() {
 			m_window.display();
 		}
 		catch (const std::exception& e) {
-			std::cerr << "GameEngine::run, exception caught: " << e.what() << '\n';
+			std::cerr << "GameEngine::run: exception caught: " << e.what() << '\n';
 			quit();
 		}
 	}
-
+	ImPlot::DestroyContext();
 	ImGui::SFML::Shutdown();
 }
 
-bool GameEngine::isRunning() const {
+bool GameEngine::isRunning() const noexcept {
 	return m_isRunning && m_window.isOpen();
 }
 
-Scene* GameEngine::currentScene() {
-	return m_sceneMap[m_curSceneName].get();
+Scene* GameEngine::currentScene() noexcept {
+	return m_sceneMap[m_currentSceneType].get();
 }
 
-void GameEngine::quit() {
+void GameEngine::quit() noexcept {
 	m_isRunning = false;
 }
 
@@ -94,62 +99,73 @@ void GameEngine::sUserInput() {
 	sf::Event event;
 	while (m_window.pollEvent(event)) {
 		ImGui::SFML::ProcessEvent(event);
+		auto& actionMap = currentScene()->getActionMap();
+		ActionStage actionStage = ActionStage::Start;
+		sf::Vector2f mPos;
 
-		if (event.type == sf::Event::Closed) {
+		switch (event.type) {
+		case sf::Event::Closed:
 			quit();
-		}
-		else if (event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased) {
-			if (currentScene()->getActionMap().find(event.key.code) == currentScene()->getActionMap().end()) {
+			break;
+		case sf::Event::KeyPressed:
+		case sf::Event::KeyReleased:
+			if (actionMap.find(event.key.code) == actionMap.end()) {
 				continue;
 			}
-
-			bool isStart = event.type == sf::Event::KeyPressed;
-			currentScene()->sDoAction(Action(currentScene()->getActionMap().at(event.key.code), isStart));
-		}
-		else if (event.type == sf::Event::MouseButtonPressed || event.type == sf::Event::MouseButtonReleased) {
-			sf::Vector2f mPos = static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window));
-			bool isStart = event.type == sf::Event::MouseButtonPressed;
+			actionStage = event.type == sf::Event::KeyPressed ? ActionStage::Start : ActionStage::End;
+			currentScene()->sDoAction(Action(actionMap.at(event.key.code), actionStage));
+			break;
+		case sf::Event::MouseButtonPressed:
+		case sf::Event::MouseButtonReleased:
+			actionStage = event.type == sf::Event::MouseButtonPressed ? ActionStage::Start : ActionStage::End;
+			mPos = static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window));
 
 			switch (event.mouseButton.button) {
 			case sf::Mouse::Left:
-				currentScene()->sDoAction(Action("LEFT_CLICK", isStart, mPos));
+				currentScene()->sDoAction(Action(ActionType::LeftClick, actionStage, mPos));
 				break;
 			case sf::Mouse::Right:
-				currentScene()->sDoAction(Action("RIGHT_CLICK", isStart, mPos));
+				currentScene()->sDoAction(Action(ActionType::RightClick, actionStage, mPos));
 				break;
 			case sf::Mouse::Middle:
-				currentScene()->sDoAction(Action("MIDDLE_CLICK", isStart, mPos));
+				currentScene()->sDoAction(Action(ActionType::MiddleClick, actionStage, mPos));
 				break;
 			}
-		}
-		else if (event.type == sf::Event::MouseMoved) {
-			sf::Vector2f mPos = static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window));
-			currentScene()->sDoAction(Action("MOUSE_MOVE", true, mPos));
-		}
-		else if (event.type == sf::Event::Resized) {
+
+			break;
+		case sf::Event::MouseMoved:
+			mPos = static_cast<sf::Vector2f>(sf::Mouse::getPosition(m_window));
+			currentScene()->sDoAction(Action(ActionType::MouseMove, actionStage, mPos));
+			break;
+		case sf::Event::Resized:
 			sf::Vector2u newWinSize = { std::max(event.size.width, 120u), std::max(event.size.height, 120u) };
 			m_window.setSize(newWinSize);
 
 			sf::FloatRect visibleArea = { 0, 0, static_cast<float>(newWinSize.x), static_cast<float>(newWinSize.y) };
 			m_window.setView(sf::View(visibleArea));
 
-			currentScene()->sDoAction(Action("RESIZED", true));
+			currentScene()->sDoAction(Action(ActionType::Resized, actionStage));
+			break;
 		}
 	}
 }
 
-sf::RenderWindow& GameEngine::window() {
+const sf::RenderWindow& GameEngine::getWindow() const noexcept {
 	return m_window;
 }
 
-int GameEngine::getFramerateLimit() const {
+sf::RenderWindow& GameEngine::getWindow() noexcept {
+	return m_window;
+}
+
+int GameEngine::getFramerateLimit() const noexcept {
 	return m_framerateLimit;
 }
 
-const Assets& GameEngine::assets() const {
+const Assets& GameEngine::assets() const noexcept {
 	return m_assets;
 }
 
-const std::string& GameEngine::getConfigPath() const {
+const std::string& GameEngine::getConfigPath() const noexcept {
 	return m_configPath;
 }

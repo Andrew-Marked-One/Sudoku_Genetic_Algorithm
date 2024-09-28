@@ -2,21 +2,21 @@
 #include <unordered_map>
 #include <fstream>
 #include <sstream>
-#include <iostream>
 #include "Animation.h"
 
 
 class Assets {
 public:
 	void loadAssets(const std::string& assetsPath);
-	void loadTextures(const std::string& name, const std::string& path);
-	void loadAnimation(const std::string& name, const std::string& textureName, int frames, int duration);
-	void loadFont(const std::string& name, const std::string& path);
-	const Animation& getAnimation(const std::string& name) const;
-	const sf::Font& getFont(const std::string& name) const;
+	[[nodiscard]] const Animation& getAnimation(const std::string& name) const noexcept;
+	[[nodiscard]] const sf::Font& getFont(const std::string& name) const noexcept;
 
 private:
 	std::unordered_map<std::string, sf::Font>                   m_fontMap;
 	std::unordered_map<std::string, sf::Texture>                m_textureMap;
 	std::unordered_map<std::string, std::unique_ptr<Animation>> m_animationMap;
+
+	[[nodiscard]] sf::Texture loadTextures(const std::string& path) const;
+	[[nodiscard]] std::unique_ptr<Animation> loadAnimation(const std::string& name, const sf::Texture& texture, int frames, int duration) const;
+	[[nodiscard]] sf::Font loadFont(const std::string& path) const;
 };

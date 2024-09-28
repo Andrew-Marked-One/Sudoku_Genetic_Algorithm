@@ -19,23 +19,12 @@ CShape::CShape() {}
 CShape::CShape(sf::Vector2f size, sf::Color fill, sf::Color outline, float thickness)
 	: shape{ size } {
 
+	INPUT_VALIDITY(size.x >= 0 && size.y >= 0);
+
 	shape.setFillColor(fill);
 	shape.setOutlineColor(outline);
 	shape.setOutlineThickness(thickness);
 	shape.setOrigin(size.x / 2, size.y / 2);
-}
-
-void CShape::setScale(sf::Vector2f relVal, bool maintainRatio) {
-	sf::Vector2f shapeSize = shape.getLocalBounds().getSize();
-
-	if (maintainRatio) {
-		float realScale = std::min(relVal.x / shapeSize.x, relVal.y / shapeSize.y);
-		shape.setScale(realScale, realScale);
-	}
-	else {
-		sf::Vector2f realScale = { relVal.x / shapeSize.x, relVal.y / shapeSize.y };
-		shape.setScale(realScale.x, realScale.y);
-	}
 }
 
 
@@ -44,6 +33,8 @@ CText::CText() {}
 CText::CText(const std::string& textStr, sf::Vector2f containerSizePrm, const sf::Font& font, sf::Color fill, sf::Color outline, float thickness)
 	: containerSize{ containerSizePrm } {
 
+	INPUT_VALIDITY(containerSizePrm.x >= 0 && containerSizePrm.y >= 0);
+
 	text.setString(textStr);
 	text.setFont(font);
 	text.setCharacterSize(200);
@@ -51,29 +42,6 @@ CText::CText(const std::string& textStr, sf::Vector2f containerSizePrm, const sf
 	text.setOutlineColor(outline);
 	text.setOutlineThickness(thickness);
 
-	setScale(containerSize, true);
-	centerText();
+	MyUtils::setScale(text, containerSize, true);
+	MyUtils::centerText(text);
 }
-
-void CText::setScale(sf::Vector2f relVal, bool maintainRatio) {
-	sf::Vector2f textSize = text.getLocalBounds().getSize();
-
-	if (maintainRatio) {
-		float realScale = std::min(relVal.x / textSize.x, relVal.y / textSize.y);
-		text.setScale(realScale, realScale);
-	}
-	else {
-		sf::Vector2f realScale = { relVal.x / textSize.x, relVal.y / textSize.y };
-		text.setScale(realScale.x, realScale.y);
-	}
-}
-
-void CText::centerText() {
-	sf::FloatRect textSizeRect = text.getLocalBounds();
-	text.setOrigin(textSizeRect.left + textSizeRect.width / 2.f, textSizeRect.top + textSizeRect.height / 2.f);
-}
-
-
-CCell::CCell() {}
-CCell::CCell(char valPrm)
-	: val{ valPrm } {}

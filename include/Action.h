@@ -1,19 +1,37 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
+
+enum class ActionType : uint8_t {
+	None = 0,
+	LeftClick,
+	RightClick,
+	MiddleClick,
+	MouseMove,
+	Resized,
+	Quit
+};
+
+
+enum class ActionStage : uint8_t {
+	Start = 0,
+	End   = 1
+};
+
+
 class Action {
 public:
 	Action();
-	Action(const std::string& name, bool isStart);
-	Action(const std::string& name, bool isStart, sf::Vector2f pos);
+	explicit Action(ActionType type, ActionStage stage);
+	explicit Action(ActionType type, ActionStage stage, sf::Vector2f pos);
 
-	const std::string& name() const;
-	bool isStart() const;
-	sf::Vector2f pos() const;
+	[[nodiscard]] sf::Vector2f getPos() const noexcept;
+	[[nodiscard]] ActionType getType() const noexcept;
+	[[nodiscard]] ActionStage getStage() const noexcept;
 
 private:
-	std::string m_name = "NONE";
 	sf::Vector2f m_pos = { 0, 0 };
-	bool m_isStart = false;
+	ActionType m_type = ActionType::None;
+	ActionStage m_stage = ActionStage::Start;
 };
 	

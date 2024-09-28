@@ -2,56 +2,55 @@
 #include "GameEngine.h"
 
 
-Scene::Scene(GameEngine* gameEngine) {
-	m_game = gameEngine;
+Scene::Scene(GameEngine* gameEngine)
+	: m_game{ gameEngine } {
+
+	INPUT_VALIDITY(gameEngine);
 }
 
-const std::unordered_map<int, std::string>& Scene::getActionMap() const {
+const Scene::ActionMap_t& Scene::getActionMap() const noexcept {
 	return m_actionMap;
 }
 
-void Scene::registerAction(int inputKey, const std::string& actionName) {
-	m_actionMap[inputKey] = actionName;
+void Scene::registerAction(sf::Keyboard::Key inputKey, ActionType actionType) {
+	INPUT_VALIDITY(inputKey >= 0);
+
+	m_actionMap[inputKey] = actionType;
 }
 
-void Scene::drawEntities() {
+void Scene::drawEntities() const {
 	for (auto&  entity : m_entityManager.getEntities()) {
-		drawEntitiesHelper(entity);
+		drawEntity(entity);
 	}
 }
 
-void Scene::drawEntities(const std::string& tag) {
+void Scene::drawEntities(const std::string& tag) const {
 	for (auto& entity : m_entityManager.getEntities(tag)) {
-		drawEntitiesHelper(entity);
+		drawEntity(entity);
 	}
 }
 
-void Scene::drawEntitiesExcept(const std::string& tag) {
+void Scene::drawEntitiesExcept(const std::string& tag) const {
 	for (auto& entity : m_entityManager.getEntities()) {
 		if (entity.getTag() == tag) {
 			continue;
 		}
-
-		drawEntitiesHelper(entity);
+		drawEntity(entity);
 	}
 }
 
-void Scene::drawEntitiesHelper(Entity entity) {
-	sf::Vector2f entityPos = entity.getComponent<CTransform>().pos;
+void Scene::drawEntity(Entity entity) const {
 	if (entity.hasComponent<CAnimation>()) {
 		auto& entitySp = entity.getComponent<CAnimation>().animation.getSprite();
-		entitySp.setPosition(entityPos.x, entityPos.y);
-		m_game->window().draw(entitySp);
+		m_game->getWindow().draw(entitySp);
 	}
 	else if (entity.hasComponent<CShape>()) {
 		auto& entitySh = entity.getComponent<CShape>().shape;
-		entitySh.setPosition(entityPos.x, entityPos.y);
-		m_game->window().draw(entitySh);
+		m_game->getWindow().draw(entitySh);
 	}
 
 	if (entity.hasComponent<CText>()) {
 		auto& entityText = entity.getComponent<CText>().text;
-		entityText.setPosition(entityPos.x, entityPos.y);
-		m_game->window().draw(entityText);
+		m_game->getWindow().draw(entityText);
 	}
 }

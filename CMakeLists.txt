@@ -12,13 +12,15 @@ endif()
 
 file(GLOB SOURCES "src/*.cpp")
 file(GLOB IMGUI_SOURCES "imgui/*.cpp")
-add_executable (${PROJECT_NAME} ${SOURCES} ${IMGUI_SOURCES})
+file(GLOB IMPLOT_SOURCES "implot/*.cpp")
+add_executable (${PROJECT_NAME} ${SOURCES} ${IMGUI_SOURCES} ${IMPLOT_SOURCES})
 
 file(COPY ${CMAKE_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})
 
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/include")
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/imgui")
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/imgui/imgui-sfml-2.6.x")
+target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/implot")
 
 find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE sfml-system sfml-network sfml-graphics sfml-window sfml-audio)

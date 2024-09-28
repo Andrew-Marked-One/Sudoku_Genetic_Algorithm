@@ -3,23 +3,23 @@
 
 Action::Action() {}
 
-Action::Action(const std::string& name, bool isStart)
-	: m_name{ name }
-	, m_isStart{ isStart } {}
+Action::Action(ActionType type, ActionStage stage)
+	: m_type{ type }
+	, m_stage{ stage } {}
 
-Action::Action(const std::string& name, bool isStart, sf::Vector2f pos)
-	: m_name{ name }
-	, m_isStart{ isStart }
+Action::Action(ActionType type, ActionStage stage, sf::Vector2f pos)
+	: m_type{ type }
+	, m_stage{ stage }
 	, m_pos{ pos } {}
 
-const std::string& Action::name() const {
-	return m_name;
-}
-
-bool Action::isStart() const {
-	return m_isStart;
-}
-
-sf::Vector2f Action::pos() const {
+sf::Vector2f Action::getPos() const noexcept {
 	return m_pos;
+}
+
+ActionType Action::getType() const noexcept {
+	return m_type;
+}
+
+ActionStage Action::getStage() const noexcept {
+	return m_stage;
 }

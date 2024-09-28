@@ -1,49 +1,60 @@
 #include "Timer.h"
 
 
-Timer::Timer() {}
-
-Timer::Timer(int msLimit)
-	: m_timeLimit(msLimit) {}
-
-void Timer::start() {
-	m_startTime = Clock::now();
+Timer::Timer() noexcept {
+	start();
 }
 
-bool Timer::timeRanOut() const {
-	if (m_timeLimit == Milliseconds()) {
-		return false;
+Timer::Timer(int msLimit) noexcept
+	: m_timeLimit(msLimit) {
+	
+	INPUT_VALIDITY(msLimit >= 0);
+
+	start();
+}
+
+void Timer::start() noexcept {
+	m_startTime = Clock_t::now();
+}
+
+int Timer::getTimeLimit() const noexcept {
+	return static_cast<int>(m_timeLimit.count());
+}
+
+bool Timer::timeRanOut() const noexcept {
+	if (m_timeLimit == Milliseconds_t()) {
+		return true;
 	}
 
-	return duration() > m_timeLimit;
+	return duration() >= m_timeLimit;
 }
 
-int Timer::timeElapsed() const {
+int Timer::timeElapsed() const noexcept {
 	return static_cast<int>(duration().count());
 }
 
-void Timer::setTimeLimit(int msLimit) {
-	m_timeLimit = Milliseconds(msLimit);
+void Timer::setTimeLimit(int msLimit) noexcept {
+	INPUT_VALIDITY(msLimit >= 0);
+
+	m_timeLimit = Milliseconds_t(msLimit);
 }
 
-void Timer::pause() {
+void Timer::pause() noexcept {
 	if (m_isPaused) {
-		m_startTime += std::chrono::duration_cast<Milliseconds>(Clock::now() - m_pauseTime);
+		m_startTime += std::chrono::duration_cast<Milliseconds_t>(Clock_t::now() - m_pauseTime);
 	}
 	else {
-		m_pauseTime = Clock::now();
+		m_pauseTime = Clock_t::now();
 	}
 
 	m_isPaused = !m_isPaused;
 }
 
-Timer::Milliseconds Timer::duration() const {
-	Milliseconds duration = {};
+Timer::Milliseconds_t Timer::duration() const noexcept {
 	if (m_isPaused) {
-		duration = std::chrono::duration_cast<Milliseconds>(m_pauseTime - m_startTime);
+		return std::chrono::duration_cast<Milliseconds_t>(m_pauseTime - m_startTime);
 	}
 	else {
-		duration = std::chrono::duration_cast<Milliseconds>(Clock::now() - m_startTime);
+		return std::chrono::duration_cast<Milliseconds_t>(Clock_t::now() - m_startTime);
 	}
-	return duration;
 }

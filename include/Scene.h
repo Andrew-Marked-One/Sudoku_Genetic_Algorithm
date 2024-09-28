@@ -3,32 +3,37 @@
 #include "Action.h"
 
 
+enum class SceneType : uint8_t {
+	None = 0,
+	Algorithm
+};
+
+
 class GameEngine;
 
 class Scene {
-public:
-	Scene(GameEngine* gameEngine);
+	using ActionMap_t = std::unordered_map<sf::Keyboard::Key, ActionType>;
 
-	const std::unordered_map<int, std::string>& getActionMap() const;
+public:
+	explicit Scene(GameEngine* gameEngine);
+
+	[[nodiscard]] const ActionMap_t& getActionMap() const noexcept;
 
 	virtual void update() = 0;
 	virtual void sDoAction(const Action& action) = 0;
 	virtual void sRender() = 0;
 
 protected:
-	std::unordered_map<int, std::string> m_actionMap;
+	ActionMap_t m_actionMap;
 	EntityManager m_entityManager;
 	GameEngine* m_game = nullptr;
-	sf::Vector2f m_windowSize;
-	sf::Vector2f m_windowHalfSize;
 	int m_currentFrame = 0;
 	bool m_isPaused = false;
+	bool m_isOnEnd  = false;
 
-	void registerAction(int inputKey, const std::string& actionName);
-	void drawEntities();
-	void drawEntities(const std::string& tag);
-	void drawEntitiesExcept(const std::string& tag);
-
-private:
-	void drawEntitiesHelper(Entity entity);
+	void registerAction(sf::Keyboard::Key inputKey, ActionType actionType);
+	void drawEntities() const;
+	void drawEntities(const std::string& tag) const;
+	void drawEntitiesExcept(const std::string& tag) const;
+	void drawEntity(Entity entity) const;
 };

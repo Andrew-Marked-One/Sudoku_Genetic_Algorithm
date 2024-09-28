@@ -4,7 +4,7 @@
 void Assets::loadAssets(const std::string& assetsPath) {
 	std::ifstream file(assetsPath);
 	if (!file.is_open()) {
-		std::cerr << "Assets::loadAssets: cannot open file with path \"" << assetsPath << "\"\n";
+		std::cerr << "Assets::loadAssets: Cannot open file with path \"" << assetsPath << "\"\n";
 	}
 	std::string line;
 	while (std::getline(file, line)) {
@@ -13,50 +13,50 @@ void Assets::loadAssets(const std::string& assetsPath) {
 		iss >> type;
 		if (type == "Texture") {
 			iss >> name >> path;
-			loadTextures(name, path);
+			m_textureMap[name] = loadTextures(path);
 		}
 		else if (type == "Animation") {
 			std::string textName;
-			unsigned int frames, duration;
+			int frames, duration;
 			iss >> name >> textName >> frames >> duration;
-			loadAnimation(name, textName, frames, duration);
+			m_animationMap[name] = loadAnimation(name, m_textureMap[textName], frames, duration);
 		}
 		else if (type == "Font") {
 			iss >> name >> path;
-			loadFont(name, path);
+			m_fontMap[name] = loadFont(path);
 		}
 	}
 }
 
-void Assets::loadTextures(const std::string& name, const std::string& path) {
+sf::Texture Assets::loadTextures(const std::string& path) const {
 	sf::Texture texture;
-	if (texture.loadFromFile(path)) {
-		m_textureMap[name] = texture;
+	if (!texture.loadFromFile(path)) {
+		std::cerr << "Assets::loadTextures: Cannot open file with path \"" << path << "\"\n";
 	}
-	else {
-		std::cerr << "Assets::loadTextures: cannot open file with path \"" << path << "\"\n";
-	}
+	return texture;
 }
 
-void Assets::loadAnimation(const std::string& name, const std::string& textureName, int frames, int duration) {
-	m_animationMap[name] = std::make_unique<Animation>(name, m_textureMap[textureName], frames, duration);
+std::unique_ptr<Animation> Assets::loadAnimation(const std::string& name, const sf::Texture& texture, int frames, int duration) const {
+	return std::make_unique<Animation>(name, texture, frames, duration);
 }
 
-void Assets::loadFont(const std::string& name, const std::string& path) {
+sf::Font Assets::loadFont(const std::string& path) const {
 	sf::Font font;
-	if (font.loadFromFile(path)) {
-		m_fontMap[name] = font;
+	if (!font.loadFromFile(path)) {
+		std::cerr << "Assets::loadFont: Cannot open file with path \"" << path << "\"\n";
 	}
-	else {
-		std::cerr << "Assets::loadFont: cannot open file with path \"" << path << "\"\n";
-	}
+	return font;
 }
 
-const Animation& Assets::getAnimation(const std::string& name) const {
-	return *m_animationMap.at(name);
+const Animation& Assets::getAnimation(const std::string& name) const noexcept {
+	const auto it = m_animationMap.find(name);
+	INPUT_VALIDITY(it != m_animationMap.end());
+	return *it->second;
 }
 
-const sf::Font& Assets::getFont(const std::string& name) const {
-	return m_fontMap.at(name);
+const sf::Font& Assets::getFont(const std::string& name) const noexcept {
+	const auto it = m_fontMap.find(name);
+	INPUT_VALIDITY(it != m_fontMap.end());
+	return it->second;
 }
 

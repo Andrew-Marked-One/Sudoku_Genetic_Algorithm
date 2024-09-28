@@ -7,10 +7,10 @@ class EntityManager {
 public:
 	void update();
 	Entity addEntity(const std::string& tag);
-	const std::vector<Entity>& getEntities() const;
-	std::vector<Entity>& getEntities();
-	const std::vector<Entity>& getEntities(const std::string& tag) const;
-	std::vector<Entity>& getEntities(const std::string& tag);
+	[[nodiscard]] const std::vector<Entity>& getEntities() const noexcept;
+	[[nodiscard]] std::vector<Entity>& getEntities() noexcept;
+	[[nodiscard]] const std::vector<Entity>& getEntities(const std::string& tag) const;
+	[[nodiscard]] std::vector<Entity>& getEntities(const std::string& tag);
 
 private:
 	std::vector<Entity> m_entities;

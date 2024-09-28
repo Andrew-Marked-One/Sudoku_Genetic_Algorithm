@@ -3,5 +3,6 @@
 int main() {
     GameEngine g("resources/config.txt");
     g.run();
-    return 0;
+
+    return EXIT_SUCCESS;
 }

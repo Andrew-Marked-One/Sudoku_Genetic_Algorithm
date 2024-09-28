@@ -1,19 +1,18 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include "MyUtils.h"
 
 
 class Animation {
 public:
 	Animation();
-	Animation(const std::string& name, const sf::Texture& texture, int frameCount, int speed);
+	explicit Animation(const std::string& name, const sf::Texture& texture, int frameCount, int speed);
 
 	void update();
-	bool hasEnded() const;
-	const std::string& getName() const;
-	const sf::Sprite& getSprite() const;
-	sf::Sprite& getSprite();
-	void setScale(sf::Vector2f relVal, bool maintainRatio);
-	void changeDirecHor();
+	[[nodiscard]] const std::string& getName() const noexcept;
+	[[nodiscard]] const sf::Sprite& getSprite() const noexcept;
+	[[nodiscard]] sf::Sprite& getSprite() noexcept;
+	[[nodiscard]] bool hasEnded() const noexcept;
 
 private:
 	sf::Sprite m_sprite;

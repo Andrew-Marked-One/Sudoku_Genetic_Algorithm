@@ -1,27 +1,30 @@
 #pragma once
 #include <chrono>
+#include <MyUtils.h>
+
 
 
 class Timer {
-	using Clock = std::chrono::steady_clock;
-	using TimePoint = Clock::time_point;
-	using Milliseconds = std::chrono::milliseconds;
+	using Clock_t = std::chrono::steady_clock;
+	using TimePoint_t = Clock_t::time_point;
+	using Milliseconds_t = std::chrono::milliseconds;
 
 public:
-	Timer();
-	Timer(int msLimit);
+	Timer() noexcept;
+	explicit Timer(int msLimit) noexcept;
 
-	void start();
-	bool timeRanOut() const;
-	int timeElapsed() const;
-	void setTimeLimit(int msLimit);
-	void pause();
+	void start() noexcept;
+	[[nodiscard]] int getTimeLimit() const noexcept;
+	[[nodiscard]] bool timeRanOut() const noexcept;
+	[[nodiscard]] int timeElapsed() const noexcept;
+	void setTimeLimit(int msLimit) noexcept;
+	void pause() noexcept;
 
 private:
-	TimePoint m_startTime;
-	TimePoint m_pauseTime;
-	Milliseconds m_timeLimit = {};
+	TimePoint_t m_startTime;
+	TimePoint_t m_pauseTime;
+	Milliseconds_t m_timeLimit = {};
 	bool m_isPaused = false;
 
-	Milliseconds duration() const;
+	[[nodiscard]] Milliseconds_t duration() const noexcept;
 };

@@ -21,7 +21,7 @@ void EntityManager::addEntities() {
 }
 
 void EntityManager::removeEntities() {
-	auto needErase = [this](Entity entity) {
+	auto needErase = [this](const auto& entity) {
 		if (!entity.isAlive()) {
 			EntityMemoryPool::Instance().resetComponents(entity.getId());
 			removeFromEntityMap(entity);
@@ -35,7 +35,7 @@ void EntityManager::removeEntities() {
 	auto eraseVec = std::ranges::remove_if(m_entities, needErase);
 
 	if (!eraseVec.empty()) {
-		EntityMemoryPool::Instance().resetNextEntityId();
+		EntityMemoryPool::Instance().m_nextEntityId = EntityMemoryPool::Instance().getFreeIndexFromBack();
 	}
 
 	m_entities.erase(eraseVec.begin(), eraseVec.end());
@@ -43,7 +43,7 @@ void EntityManager::removeEntities() {
 
 void EntityManager::removeFromEntityMap(Entity entity) {
 	auto& vec = m_entityMap[entity.getTag()];
-	auto it = std::ranges::find_if(vec, [entity](Entity target) {
+	const auto it = std::ranges::find_if(vec, [entity](Entity target) {
 		return target.getId() == entity.getId();
 	});
 
@@ -52,18 +52,26 @@ void EntityManager::removeFromEntityMap(Entity entity) {
 	}
 }
 
-const std::vector<Entity>& EntityManager::getEntities() const {
+const std::vector<Entity>& EntityManager::getEntities() const noexcept {
 	return m_entities;
 }
 
-std::vector<Entity>& EntityManager::getEntities() {
+std::vector<Entity>& EntityManager::getEntities() noexcept {
 	return m_entities;
 }
 
 const std::vector<Entity>& EntityManager::getEntities(const std::string& tag) const {
-	return m_entityMap.at(tag);
+	const auto it = m_entityMap.find(tag);
+
+	INPUT_VALIDITY(it != m_entityMap.end());
+
+	return it->second;
 }
 
 std::vector<Entity>& EntityManager::getEntities(const std::string& tag) {
-	return m_entityMap[tag];
+	const auto it = m_entityMap.find(tag);
+
+	INPUT_VALIDITY(it != m_entityMap.end());
+
+	return it->second;
 }
