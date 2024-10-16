@@ -2,26 +2,23 @@
     "version": 3,
     "configurePresets": [
         {
-            "name": "windows-base",
+            "name": "base",
             "hidden": true,
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
-            "installDir": "${sourceDir}/out/install/${presetName}",
+            "installDir": "${sourceDir}/external",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "cl.exe",
                 "CMAKE_CXX_COMPILER": "cl.exe",
-                "CMAKE_TOOLCHAIN_FILE": "G:/Programs/vcpkg-master/scripts/buildsystems/vcpkg.cmake"
-            },
-            "condition": {
-                "type": "equals",
-                "lhs": "${hostSystemName}",
-                "rhs": "Windows"
+                "BUILD_SHARED_LIBS": "OFF",
+                "SFML_BUILD_AUDIO": "OFF",
+                "SFML_BUILD_NETWORK": "OFF"
             }
         },
         {
             "name": "x64-debug",
             "displayName": "x64 Debug",
-            "inherits": "windows-base",
+            "inherits": "base",
             "architecture": {
                 "value": "x64",
                 "strategy": "external"
@@ -41,7 +38,7 @@
         {
             "name": "x86-debug",
             "displayName": "x86 Debug",
-            "inherits": "windows-base",
+            "inherits": "base",
             "architecture": {
                 "value": "x86",
                 "strategy": "external"

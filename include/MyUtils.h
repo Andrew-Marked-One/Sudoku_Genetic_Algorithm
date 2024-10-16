@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <type_traits>
 
 #define CHECK_INPUT_OUTPUT_VALIDITY false
 #ifdef CHECK_INPUT_OUTPUT_VALIDITY

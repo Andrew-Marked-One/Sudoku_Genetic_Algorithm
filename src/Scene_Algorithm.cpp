@@ -110,9 +110,11 @@ void Scene_Algorithm::addGenerationToGraph() {
 int Scene_Algorithm::getTotalPopulationFitness(const Population_t& population) const {
 	INPUT_VALIDITY(!population.empty());
 
-	return std::reduce(population.begin(), population.end(), 0, [](int sum, const Individual& individual) {
-		return sum + individual.fitness;
-	});
+	int sum = 0;
+	for (const auto& individual : population) {
+		sum += individual.fitness;
+	}
+	return sum;
 }
 
 std::pair<int, int> Scene_Algorithm::getMinMaxPopulationFitness(const Population_t& population) const {
@@ -465,8 +467,8 @@ void Scene_Algorithm::gui() {
 }
 
 void Scene_Algorithm::controls() {
-	sf::Vector2f controlsPos = { 0, m_gridPhysicalSize };
-	sf::Vector2f controlsSize = static_cast<sf::Vector2f>(m_game->getWindow().getSize()) - sf::Vector2f(0, m_gridPhysicalSize);
+	ImVec2 controlsPos = { 0, m_gridPhysicalSize };
+	ImVec2 controlsSize = { static_cast<float>(m_game->getWindow().getSize().x), m_game->getWindow().getSize().y - m_gridPhysicalSize};
 
 	ImGui::SetNextWindowPos(controlsPos);
 	ImGui::SetNextWindowSize(controlsSize);
@@ -613,8 +615,8 @@ void Scene_Algorithm::buttonPause() {
 }
 
 void Scene_Algorithm::graph() {
-	sf::Vector2f graphPos = { m_gridPhysicalSize, 0 };
-	sf::Vector2f graphSize = { m_game->getWindow().getSize().x - m_gridPhysicalSize, m_gridPhysicalSize };
+	ImVec2 graphPos = { m_gridPhysicalSize, 0 };
+	ImVec2 graphSize = { m_game->getWindow().getSize().x - m_gridPhysicalSize, m_gridPhysicalSize };
 
 	ImGui::SetNextWindowPos(graphPos);
 	ImGui::SetNextWindowSize(graphSize);

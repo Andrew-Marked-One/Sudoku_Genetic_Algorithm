@@ -12,7 +12,9 @@ GameEngine::GameEngine(const std::string& configPath)
 
 void GameEngine::init() {
 	loadFromConfig();
-	ImGui::SFML::Init(m_window);
+	if (!ImGui::SFML::Init(m_window)) {
+		std::cerr << "GameEngine::init: Cannot init ImGui\n";
+	}
 	ImPlot::CreateContext();
 	changeScene(SceneType::Algorithm, std::make_unique<Scene_Algorithm>(this), true);
 }
@@ -98,7 +100,7 @@ void GameEngine::quit() noexcept {
 void GameEngine::sUserInput() {
 	sf::Event event;
 	while (m_window.pollEvent(event)) {
-		ImGui::SFML::ProcessEvent(event);
+		ImGui::SFML::ProcessEvent(m_window, event);
 		auto& actionMap = currentScene()->getActionMap();
 		ActionStage actionStage = ActionStage::Start;
 		sf::Vector2f mPos;

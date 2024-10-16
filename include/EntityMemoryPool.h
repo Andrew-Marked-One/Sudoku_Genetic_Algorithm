@@ -1,6 +1,8 @@
 #pragma once
 #include <tuple>
 #include <iostream>
+#include <cstdint>
+#include <limits>
 #include "Components.h"
 
 

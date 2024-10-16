@@ -1,9 +1,9 @@
 #pragma once
+#include "Scene.h"
+#include "Assets.h"
 #include "imgui.h"
 #include "imgui-SFML.h"
 #include "implot.h"
-#include "Scene.h"
-#include "Assets.h"
 
 
 class GameEngine {

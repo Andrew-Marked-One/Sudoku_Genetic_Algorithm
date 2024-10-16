@@ -24,7 +24,7 @@ CShape::CShape(sf::Vector2f size, sf::Color fill, sf::Color outline, float thick
 	shape.setFillColor(fill);
 	shape.setOutlineColor(outline);
 	shape.setOutlineThickness(thickness);
-	shape.setOrigin(size.x / 2, size.y / 2);
+	shape.setOrigin({ size.x / 2, size.y / 2 });
 }
 
 
