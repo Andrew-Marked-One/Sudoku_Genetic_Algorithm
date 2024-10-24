@@ -2,6 +2,8 @@
 
 
 void Assets::loadAssets(const std::string& assetsPath) {
+	INPUT_VALIDITY(!assetsPath.empty());
+
 	std::ifstream file(assetsPath);
 	if (!file.is_open()) {
 		std::cerr << "Assets::loadAssets: Cannot open file with path \"" << assetsPath << "\"\n";
@@ -9,7 +11,11 @@ void Assets::loadAssets(const std::string& assetsPath) {
 	std::string line;
 	while (std::getline(file, line)) {
 		std::stringstream iss(line);
-		std::string type, name, path;
+
+		std::string type;
+		std::string name;
+		std::string path;
+
 		iss >> type;
 		if (type == "Texture") {
 			iss >> name >> path;
@@ -17,9 +23,11 @@ void Assets::loadAssets(const std::string& assetsPath) {
 		}
 		else if (type == "Animation") {
 			std::string textName;
-			int frames, duration;
-			iss >> name >> textName >> frames >> duration;
-			m_animationMap[name] = loadAnimation(name, m_textureMap[textName], frames, duration);
+			int frames = 0;
+			int speed = 0;
+
+			iss >> name >> textName >> frames >> speed;
+			m_animationMap[name] = loadAnimation(name, m_textureMap[textName], frames, speed);
 		}
 		else if (type == "Font") {
 			iss >> name >> path;
@@ -28,7 +36,9 @@ void Assets::loadAssets(const std::string& assetsPath) {
 	}
 }
 
-sf::Texture Assets::loadTextures(const std::string& path) const {
+sf::Texture Assets::loadTextures(const std::string& path) {
+	INPUT_VALIDITY(!path.empty());
+
 	sf::Texture texture;
 	if (!texture.loadFromFile(path)) {
 		std::cerr << "Assets::loadTextures: Cannot open file with path \"" << path << "\"\n";
@@ -36,11 +46,18 @@ sf::Texture Assets::loadTextures(const std::string& path) const {
 	return texture;
 }
 
-std::unique_ptr<Animation> Assets::loadAnimation(const std::string& name, const sf::Texture& texture, int frames, int duration) const {
-	return std::make_unique<Animation>(name, texture, frames, duration);
+std::unique_ptr<Animation> Assets::loadAnimation(const std::string& name, const sf::Texture& texture, int frames, int speed) {
+	INPUT_VALIDITY(!name.empty());
+	INPUT_VALIDITY(texture.getSize().x != 0 && texture.getSize().y != 0);
+	INPUT_VALIDITY(frames > 0);
+	INPUT_VALIDITY(speed >= 0);
+
+	return std::make_unique<Animation>(name, texture, frames, speed);
 }
 
-sf::Font Assets::loadFont(const std::string& path) const {
+sf::Font Assets::loadFont(const std::string& path) {
+	INPUT_VALIDITY(!path.empty());
+
 	sf::Font font;
 	if (!font.loadFromFile(path)) {
 		std::cerr << "Assets::loadFont: Cannot open file with path \"" << path << "\"\n";
@@ -49,14 +66,22 @@ sf::Font Assets::loadFont(const std::string& path) const {
 }
 
 const Animation& Assets::getAnimation(const std::string& name) const noexcept {
-	const auto it = m_animationMap.find(name);
-	INPUT_VALIDITY(it != m_animationMap.end());
-	return *it->second;
+	INPUT_VALIDITY(!name.empty());
+
+	const auto animationIt = m_animationMap.find(name);
+
+	INPUT_VALIDITY(animationIt != m_animationMap.end());
+
+	return *animationIt->second;
 }
 
 const sf::Font& Assets::getFont(const std::string& name) const noexcept {
-	const auto it = m_fontMap.find(name);
-	INPUT_VALIDITY(it != m_fontMap.end());
-	return it->second;
+	INPUT_VALIDITY(!name.empty());
+
+	const auto fontIt = m_fontMap.find(name);
+
+	INPUT_VALIDITY(fontIt != m_fontMap.end());
+
+	return fontIt->second;
 }
 

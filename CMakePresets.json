@@ -8,8 +8,8 @@
             "binaryDir": "${sourceDir}/out/build/${presetName}",
             "installDir": "${sourceDir}/external",
             "cacheVariables": {
-                "CMAKE_C_COMPILER": "cl.exe",
-                "CMAKE_CXX_COMPILER": "cl.exe",
+                "CMAKE_C_COMPILER": "clang.exe",
+                "CMAKE_CXX_COMPILER": "clang++.exe",
                 "BUILD_SHARED_LIBS": "OFF",
                 "SFML_BUILD_AUDIO": "OFF",
                 "SFML_BUILD_NETWORK": "OFF"

@@ -2,10 +2,10 @@
 
 Entity::Entity() noexcept {}
 
-Entity::Entity(EntityId_t id) noexcept
-	: m_id{ id } {
+Entity::Entity(EntityId_t entityId) noexcept
+	: m_id{ entityId } {
 
-	INPUT_VALIDITY(id >= 0);
+	INPUT_VALIDITY(entityId >= 0);
 }
 
 EntityId_t Entity::getId() const noexcept {
@@ -21,5 +21,5 @@ bool Entity::isAlive() const noexcept {
 }
 
 void Entity::destroy() const noexcept {
-	return EntityMemoryPool::Instance().destroy(m_id);
+	EntityMemoryPool::Instance().destroy(m_id);
 }

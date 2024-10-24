@@ -9,8 +9,9 @@
 class GameEngine {
 public:
 	explicit GameEngine(const std::string& configPath);
+	~GameEngine();
 
-	void changeScene(SceneType sceneType, std::unique_ptr<Scene>&& scene, bool endCurScene) noexcept;
+	void changeScene(SceneType sceneType, std::unique_ptr<Scene> scene, bool endCurScene) noexcept;
 	void run();
 	[[nodiscard]] bool isRunning() const noexcept;
 	void quit() noexcept;
@@ -25,7 +26,8 @@ private:
 	Assets m_assets;
 	std::unordered_map<SceneType, std::unique_ptr<Scene>> m_sceneMap;
 	std::string m_configPath = "NONE";
-	int m_framerateLimit;
+	sf::Vector2u m_minWindowSize = { 120u, 120u };
+	int m_framerateLimit = 60;
 	SceneType m_currentSceneType = SceneType::None;
 	bool m_isRunning = true;
 	 

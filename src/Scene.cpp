@@ -19,19 +19,19 @@ void Scene::registerAction(sf::Keyboard::Key inputKey, ActionType actionType) {
 }
 
 void Scene::drawEntities() const {
-	for (auto&  entity : m_entityManager.getEntities()) {
+	for (const auto&  entity : m_entityManager.getEntities()) {
 		drawEntity(entity);
 	}
 }
 
 void Scene::drawEntities(const std::string& tag) const {
-	for (auto& entity : m_entityManager.getEntities(tag)) {
+	for (const auto& entity : m_entityManager.getEntities(tag)) {
 		drawEntity(entity);
 	}
 }
 
 void Scene::drawEntitiesExcept(const std::string& tag) const {
-	for (auto& entity : m_entityManager.getEntities()) {
+	for (const auto& entity : m_entityManager.getEntities()) {
 		if (entity.getTag() == tag) {
 			continue;
 		}

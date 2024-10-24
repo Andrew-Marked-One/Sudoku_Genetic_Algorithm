@@ -10,6 +10,11 @@ GameEngine::GameEngine(const std::string& configPath)
 	init();
 }
 
+GameEngine::~GameEngine() {
+	ImPlot::DestroyContext();
+	ImGui::SFML::Shutdown();
+}
+
 void GameEngine::init() {
 	loadFromConfig();
 	if (!ImGui::SFML::Init(m_window)) {
@@ -32,8 +37,8 @@ void GameEngine::loadFromConfig() {
 		iss >> type;
 
 		if (type == "Window") {
-			int winWidth;
-			int winHeight;
+			int winWidth = 0;
+			int winHeight = 0;
 			iss >> winWidth >> winHeight >> m_framerateLimit;
 			m_window.create(sf::VideoMode(winWidth, winHeight), "Sudoku", sf::Style::Close);
 			m_window.setFramerateLimit(m_framerateLimit);
@@ -46,10 +51,10 @@ void GameEngine::loadFromConfig() {
 	}
 }
 
-void GameEngine::changeScene(SceneType sceneType, std::unique_ptr<Scene>&& scene, bool endCurScene) noexcept {
+void GameEngine::changeScene(SceneType sceneType, std::unique_ptr<Scene> scene, bool endCurScene) noexcept {
 	INPUT_VALIDITY(sceneType != SceneType::None);
-	INPUT_VALIDITY(scene);
-	INPUT_VALIDITY(endCurScene && sceneType != m_currentSceneType || !endCurScene);
+	INPUT_VALIDITY(scene != nullptr);
+	INPUT_VALIDITY(sceneType != m_currentSceneType || !endCurScene);
 
 	m_sceneMap[sceneType] = std::move(scene);
 
@@ -69,7 +74,7 @@ void GameEngine::run() {
 			currentScene()->update();
 			ImGui::SFML::Update(m_window, deltaClock.restart());
 
-			m_window.clear(sf::Color(255, 255, 255));
+			m_window.clear(sf::Color::White);
 
 			currentScene()->sRender();
 			ImGui::SFML::Render(m_window);
@@ -81,8 +86,6 @@ void GameEngine::run() {
 			quit();
 		}
 	}
-	ImPlot::DestroyContext();
-	ImGui::SFML::Shutdown();
 }
 
 bool GameEngine::isRunning() const noexcept {
@@ -101,7 +104,7 @@ void GameEngine::sUserInput() {
 	sf::Event event;
 	while (m_window.pollEvent(event)) {
 		ImGui::SFML::ProcessEvent(m_window, event);
-		auto& actionMap = currentScene()->getActionMap();
+		const auto& actionMap = currentScene()->getActionMap();
 		ActionStage actionStage = ActionStage::Start;
 		sf::Vector2f mPos;
 
@@ -140,7 +143,7 @@ void GameEngine::sUserInput() {
 			currentScene()->sDoAction(Action(ActionType::MouseMove, actionStage, mPos));
 			break;
 		case sf::Event::Resized:
-			sf::Vector2u newWinSize = { std::max(event.size.width, 120u), std::max(event.size.height, 120u) };
+			sf::Vector2u newWinSize = { std::max(event.size.width, m_minWindowSize.x), std::max(event.size.height, m_minWindowSize.y) };
 			m_window.setSize(newWinSize);
 
 			sf::FloatRect visibleArea = { 0, 0, static_cast<float>(newWinSize.x), static_cast<float>(newWinSize.y) };

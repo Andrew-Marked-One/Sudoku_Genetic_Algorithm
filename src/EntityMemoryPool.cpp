@@ -17,9 +17,7 @@ Entity EntityMemoryPool::addEntity(const std::string& tag) {
 
 	EntityId_t index = isPoolFull() ? getFreeIndexFromFront() : m_nextEntityId++;
 
-	if (index >= m_poolSize) {
-		throw std::runtime_error("m_poolSize is full\n");
-	}
+	OUTPUT_VALIDITY(index < m_poolSize);
 
 	m_alive[index] = true;
 	m_tags[index] = tag;

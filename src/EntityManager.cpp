@@ -27,9 +27,8 @@ void EntityManager::removeEntities() {
 			removeFromEntityMap(entity);
 			return true;
 		}
-		else {
-			return false;
-		}
+
+		return false;
 	};
 
 	auto eraseVec = std::ranges::remove_if(m_entities, needErase);
@@ -43,12 +42,12 @@ void EntityManager::removeEntities() {
 
 void EntityManager::removeFromEntityMap(Entity entity) {
 	auto& vec = m_entityMap[entity.getTag()];
-	const auto it = std::ranges::find_if(vec, [entity](Entity target) {
+	const auto entityIt = std::ranges::find_if(vec, [entity](Entity target) {
 		return target.getId() == entity.getId();
 	});
 
-	if (it != vec.end()) {
-		vec.erase(it);
+	if (entityIt != vec.end()) {
+		vec.erase(entityIt);
 	}
 }
 
@@ -61,17 +60,17 @@ std::vector<Entity>& EntityManager::getEntities() noexcept {
 }
 
 const std::vector<Entity>& EntityManager::getEntities(const std::string& tag) const {
-	const auto it = m_entityMap.find(tag);
+	const auto entityIt = m_entityMap.find(tag);
 
-	INPUT_VALIDITY(it != m_entityMap.end());
+	INPUT_VALIDITY(entityIt != m_entityMap.end());
 
-	return it->second;
+	return entityIt->second;
 }
 
 std::vector<Entity>& EntityManager::getEntities(const std::string& tag) {
-	const auto it = m_entityMap.find(tag);
+	const auto entityIt = m_entityMap.find(tag);
 
-	INPUT_VALIDITY(it != m_entityMap.end());
+	INPUT_VALIDITY(entityIt != m_entityMap.end());
 
-	return it->second;
+	return entityIt->second;
 }

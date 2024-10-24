@@ -1,5 +1,6 @@
 #pragma once
 #include <unordered_map>
+#include <ranges>
 #include "Entity.h"
 
 

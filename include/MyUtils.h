@@ -4,23 +4,18 @@
 #include <type_traits>
 
 #define CHECK_INPUT_OUTPUT_VALIDITY false
-#ifdef CHECK_INPUT_OUTPUT_VALIDITY
+#if CHECK_INPUT_OUTPUT_VALIDITY
 	#define INPUT_VALIDITY(condition) \
-		do{ \
-			if (!(condition)) { \
-				std::cerr << __FUNCTION__ << ": Invalid input at line: " << __LINE__ << '\n'; \
-				std::abort(); \
-			} \
-		} while(0)
+		if (!(condition)) { \
+			std::cerr << __FUNCTION__ << ": Invalid input at line: " << __LINE__ << '\n'; \
+			std::abort(); \
+		}
 
 	#define OUTPUT_VALIDITY(condition) \
-		do{ \
-			if (!(condition)) { \
-				std::cerr << __FUNCTION__ << ": Invalid output at line: " << __LINE__ << '\n'; \
-				 \
-				std::abort(); \
-			} \
-		} while(0)
+		if (!(condition)) { \
+			std::cerr << __FUNCTION__ << ": Invalid output at line: " << __LINE__ << '\n'; \
+			std::abort(); \
+		}
 #else
 	#define INPUT_VALIDITY(condition)
 	#define OUTPUT_VALIDITY(condition)

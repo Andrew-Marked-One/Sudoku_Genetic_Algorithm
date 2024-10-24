@@ -5,7 +5,7 @@
 class Entity {
 public:
 	Entity() noexcept;
-	explicit Entity(EntityId_t id) noexcept;
+	explicit Entity(EntityId_t entityId) noexcept;
 
 	[[nodiscard]] EntityId_t getId() const noexcept;
 	[[nodiscard]] const std::string& getTag() const noexcept;

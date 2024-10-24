@@ -9,19 +9,21 @@ Animation::Animation(const std::string& name, const sf::Texture& texture, int fr
 	, m_frameCount{ frameCount }
 	, m_speed{ speed } {
 
+	INPUT_VALIDITY(!name.empty());
+	INPUT_VALIDITY(texture.getSize().x != 0 && texture.getSize().y != 0);
 	INPUT_VALIDITY(frameCount > 0);
 	INPUT_VALIDITY(speed >= 0);
 
 	m_tSize = texture.getSize();
-	m_sprite.setOrigin(m_tSize.x / 2.f, m_tSize.y / 2.f);
+	m_sprite.setOrigin(m_tSize.x / 2.F, m_tSize.y / 2.F);
 	m_sprite.setTextureRect(sf::IntRect(m_currentFrame * m_tSize.x, 0, m_tSize.x, m_tSize.y));
 }
 
 void Animation::update() {
 	if (m_speed > 0) {
 		m_sprite.setTextureRect(sf::IntRect((m_currentFrame / m_speed) % m_frameCount * m_tSize.x, 0, m_tSize.x, m_tSize.y));
+		m_currentFrame++;
 	}
-	m_currentFrame++;
 }
 
 const std::string& Animation::getName() const noexcept {
